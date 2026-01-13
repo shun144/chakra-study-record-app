@@ -96,7 +96,9 @@ const StudyRecord = () => {
 
   return (
     <>
-      <h1 style={{ color: "green" }}>学習記録一覧</h1>
+      <h1 data-testid="title" style={{ color: "green" }}>
+        学習記録一覧
+      </h1>
       <div
         style={{
           width: "450px",
