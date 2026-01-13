@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 describe("App.tsx", () => {
   it("タイトル表示チェック", async () => {
     render(<App />);
-    const title = await screen.findByTestId("kano");
+    const title = await screen.findByTestId("title");
     expect(title).toBeInTheDocument();
   });
 });
