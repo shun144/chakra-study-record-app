@@ -1,15 +1,20 @@
 import { fetchAllRecords } from "@/utils/supabase/supabaseFunction";
-import { type Tables } from "@/utils/supabase/types";
+// import { type Tables } from "@/utils/supabase/types";
 import { useCallback, useEffect, useState } from "react";
 // import RecordLi from "./molecules/record/RecordLi";
+import PrimaryButton from "@/atoms/button/PrimaryButton";
+import { Record } from "@/domain/record";
+import InputModal from "@/organisms/InputModal";
+import { useDisclosure } from "@chakra-ui/react";
 
 const StudyRecord = () => {
-  const [records, setRecords] = useState<Tables<"study-record">[]>([]);
+  const [records, setRecords] = useState<Record[]>([]);
   const [studyTitle, setStudyTitle] = useState("");
-  const [studyTime, setStudyTime] = useState<number | undefined>(undefined);
+  const [studyTime, setStudyTime] = useState(NaN);
   const [error, setError] = useState("");
-
   const [isLoading, setIsLoading] = useState(false);
+
+  const { open, setOpen, onToggle } = useDisclosure();
 
   useEffect(() => {
     (async () => {
@@ -19,21 +24,6 @@ const StudyRecord = () => {
       setIsLoading(false);
     })();
   }, []);
-
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       const res = await fetchAllRecords();
-
-  //       if (res.status === 200) {
-  //         setRecords(res.data);
-  //         setIsLoading(false);
-  //       }
-  //     } catch (err) {
-  //       console.log(`%c ${err}`, "color:red");
-  //     }
-  //   })();
-  // }, []);
 
   const handleChangeText = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,6 +42,10 @@ const StudyRecord = () => {
     []
   );
 
+  const addRecord = () => {
+    setOpen(true);
+  };
+
   // const handleChangeTime = (event) => {
   //   const val = parseInt(event.target.value);
   //   if (Number.isNaN(val)) setError("入力されていない項目があります");
@@ -60,7 +54,7 @@ const StudyRecord = () => {
   // };
 
   // const addRecord = async () => {
-  //   if (studyTitle === "" || Number.isNaN(studyTime) || studyTime === 0) {
+  //   if (studyTitle === "" || Number.isNaN(studyTime) || !studyTime) {
   //     setError("入力されていない項目があります");
   //     return;
   //   }
@@ -77,10 +71,17 @@ const StudyRecord = () => {
   //     time: studyTime,
   //   };
 
-  //   // const addedRecord = await addDbRecord(newRecord);
-  //   // setRecords((prev) => [...prev, addedRecord]);
-  //   // setStudyTitle("");
-  //   // setStudyTime(0);
+  //   const addedRecord = await insertRecord(newRecord);
+
+  //   if (addedRecord === null) {
+  //     setStudyTitle("");
+  //     setStudyTime(0);
+  //     return;
+  //   }
+
+  //   setRecords((prev) => [...prev, addedRecord]);
+  //   setStudyTitle("");
+  //   setStudyTime(NaN);
   // };
 
   // const handleRecodeDelete = async (deleteId) => {
@@ -151,11 +152,13 @@ const StudyRecord = () => {
         </div>
 
         <div style={{ textAlign: "center", width: "100%" }}>
-          {/* <PrimaryButton onClick={addRecord}>登録</PrimaryButton> */}
+          <PrimaryButton onClick={addRecord}>登録</PrimaryButton>
           {error && <p style={{ color: "red" }}>{error}</p>}
           {/* <p>{`合計時間：${totalTime} / 1000(h)`}</p> */}
         </div>
       </div>
+
+      <InputModal open={open} onToggle={onToggle} />
     </>
   );
 };
