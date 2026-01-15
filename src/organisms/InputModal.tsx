@@ -6,93 +6,43 @@ import {
   Field,
   Flex,
   Input,
+  DialogPositioner as OrgDialogPositioner,
   Portal,
   Stack,
   Text,
   type UseDisclosureReturn,
 } from "@chakra-ui/react";
 import { memo, type FC } from "react";
-import { useForm } from "react-hook-form";
-
-type Props = Pick<UseDisclosureReturn, "open" | "onToggle" | "setOpen">;
+import type { FieldErrors, UseFormRegister } from "react-hook-form";
 
 interface FormValues {
   studyContent: string;
   studyTime: number;
 }
 
-const InputModal: FC<Props> = ({ open, onToggle, setOpen }) => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isValid },
-  } = useForm<FormValues>({
-    mode: "onChange",
-  });
+type Props = Pick<UseDisclosureReturn, "open" | "onToggle"> & {
+  onSubmit: (
+    e?: React.BaseSyntheticEvent<object, any, any> | undefined
+  ) => Promise<void>;
+  errors: FieldErrors<FormValues>;
+  register: UseFormRegister<FormValues>;
+  isValid: boolean;
+};
 
-  const onSubmit = handleSubmit((formData) => {
-    if (!isValid) return;
+export const DialogPositioner: React.FC<{ children: React.ReactNode }> =
+  OrgDialogPositioner;
 
-    const newRecord = {
-      title: formData.studyContent,
-      time: formData.studyTime,
-    };
+// export const DialogPositioner: FC<{ children: React.ReactNode }> =
+//   Dialog.Positioner;
 
-    // (async () => {
-    //   const addedRecord = await insertRecord(newRecord);
-
-    //   // if (addedRecord === null) {
-    //   //   setStudyTitle("");
-    //   //   setStudyTime(0);
-    //   //   return;
-    //   // }
-    // })();
-
-    // const addedRecord = await insertRecord(newRecord);
-
-    // if (addedRecord === null) {
-    //   setStudyTitle("");
-    //   setStudyTime(0);
-    //   return;
-    // }
-
-    // setStudyTitle("");
-    // setStudyTime(NaN);
-
-    setOpen(false);
-  });
-
-  // const addRecord = async () => {
-  //   if (studyTitle === "" || Number.isNaN(studyTime) || !studyTime) {
-  //     setError("入力されていない項目があります");
-  //     return;
-  //   }
-
-  //   if (studyTime <= 0) {
-  //     setError("学習時間は1時間以上を指定してください");
-  //     return;
-  //   }
-
-  //   setError("");
-
-  //   const newRecord = {
-  //     title: studyTitle,
-  //     time: studyTime,
-  //   };
-
-  //   const addedRecord = await insertRecord(newRecord);
-
-  //   if (addedRecord === null) {
-  //     setStudyTitle("");
-  //     setStudyTime(0);
-  //     return;
-  //   }
-
-  //   setRecords((prev) => [...prev, addedRecord]);
-  //   setStudyTitle("");
-  //   setStudyTime(NaN);
-  // };
-
+const InputModal: FC<Props> = ({
+  open,
+  onToggle,
+  onSubmit,
+  errors,
+  register,
+  isValid,
+}) => {
   return (
     <Dialog.Root size={"sm"} open={open} onOpenChange={onToggle}>
       <Portal>
@@ -130,17 +80,11 @@ const InputModal: FC<Props> = ({ open, onToggle, setOpen }) => {
                               value: /^(0|[1-9]\d*)(\.\d+)?$/,
                               message: "整数で入力してください。",
                             },
-                            // valueAsNumber: true,
                             required: "時間の入力は必須です",
                             min: {
                               value: 0,
                               message: "時間は0以上である必要があります",
                             },
-
-                            // pattern: {
-                            //   value: /^(0|[1-9]\d*)(\.\d+)?$/g,
-
-                            // },
                           })}
                         />
                         <Text>時間</Text>

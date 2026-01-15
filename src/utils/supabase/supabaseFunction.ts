@@ -39,3 +39,19 @@ export const insertRecord = async (
     return null;
   }
 };
+
+export const DeleteRecord = async (id: string) => {
+  try {
+    const res = await supabase.from("study-record").delete().eq("id", id);
+
+    if (res.error) {
+      throw new Error(res.error.message);
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+
+    throw new Error("登録に失敗しました");
+  }
+};
