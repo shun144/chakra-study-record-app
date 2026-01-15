@@ -1,12 +1,18 @@
 import PrimaryButton from "@/atoms/button/PrimaryButton";
 import {
+  DialogCloseTrigger,
+  DialogContent,
+  DialogPositioner,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { FieldErrorText, FieldLabel } from "@/components/ui/field";
+import {
   Button,
   CloseButton,
   Dialog,
   Field,
   Flex,
   Input,
-  DialogPositioner as OrgDialogPositioner,
   Portal,
   Stack,
   Text,
@@ -29,12 +35,6 @@ type Props = Pick<UseDisclosureReturn, "open" | "onToggle"> & {
   isValid: boolean;
 };
 
-export const DialogPositioner: React.FC<{ children: React.ReactNode }> =
-  OrgDialogPositioner;
-
-// export const DialogPositioner: FC<{ children: React.ReactNode }> =
-//   Dialog.Positioner;
-
 const InputModal: FC<Props> = ({
   open,
   onToggle,
@@ -47,29 +47,29 @@ const InputModal: FC<Props> = ({
     <Dialog.Root size={"sm"} open={open} onOpenChange={onToggle}>
       <Portal>
         <Dialog.Backdrop />
-        <Dialog.Positioner>
-          <Dialog.Content>
+        <DialogPositioner>
+          <DialogContent>
             <Dialog.Header>
-              <Dialog.Title>学習記録登録</Dialog.Title>
+              <DialogTitle>学習記録登録</DialogTitle>
             </Dialog.Header>
             <Dialog.Body>
               <Stack>
                 <form id="register" onSubmit={onSubmit}>
                   <Stack gap="4" align="flex-start" maxW="md">
                     <Field.Root invalid={!!errors.studyContent}>
-                      <Field.Label>学習記録</Field.Label>
+                      <FieldLabel>学習記録</FieldLabel>
                       <Input
                         {...register("studyContent", {
                           required: "内容の入力は必須です",
                         })}
                       />
-                      <Field.ErrorText>
+                      <FieldErrorText>
                         {errors.studyContent?.message}
-                      </Field.ErrorText>
+                      </FieldErrorText>
                     </Field.Root>
 
                     <Field.Root invalid={!!errors.studyTime}>
-                      <Field.Label>学習時間</Field.Label>
+                      <FieldLabel>学習時間</FieldLabel>
                       <Flex align={"center"} w="100%" gap={2}>
                         <Input
                           type="number"
@@ -90,9 +90,9 @@ const InputModal: FC<Props> = ({
                         <Text>時間</Text>
                       </Flex>
 
-                      <Field.ErrorText>
+                      <FieldErrorText>
                         {errors.studyTime?.message}
-                      </Field.ErrorText>
+                      </FieldErrorText>
                     </Field.Root>
                   </Stack>
                 </form>
@@ -110,11 +110,11 @@ const InputModal: FC<Props> = ({
                 <Button>キャンセル</Button>
               </Dialog.ActionTrigger>
             </Dialog.Footer>
-            <Dialog.CloseTrigger asChild>
+            <DialogCloseTrigger asChild>
               <CloseButton size="sm" />
-            </Dialog.CloseTrigger>
-          </Dialog.Content>
-        </Dialog.Positioner>
+            </DialogCloseTrigger>
+          </DialogContent>
+        </DialogPositioner>
       </Portal>
     </Dialog.Root>
   );
