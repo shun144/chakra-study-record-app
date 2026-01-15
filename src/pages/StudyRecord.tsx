@@ -10,7 +10,8 @@ import { useDisclosure } from "@chakra-ui/react";
 const StudyRecord = () => {
   const [records, setRecords] = useState<Record[]>([]);
   const [studyTitle, setStudyTitle] = useState("");
-  const [studyTime, setStudyTime] = useState(NaN);
+  const [studyTime, setStudyTime] = useState("");
+  // const [studyTime, setStudyTime] = useState(NaN);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -35,8 +36,11 @@ const StudyRecord = () => {
 
   const handleChangeTime = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      const val = parseInt(event.target.value);
-      if (Number.isNaN(val)) setError("入力されていない項目があります");
+      const val = event.target.value;
+      if (Number.isNaN(val)) {
+        setError("入力されていない項目があります");
+        return;
+      }
       setStudyTime(val);
     },
     []
@@ -94,6 +98,7 @@ const StudyRecord = () => {
   // }, 0);
 
   if (isLoading) return <div>ローディング中</div>;
+  console.log("StudyRecordeレンダリング");
 
   return (
     <>
@@ -158,7 +163,7 @@ const StudyRecord = () => {
         </div>
       </div>
 
-      <InputModal open={open} onToggle={onToggle} />
+      <InputModal open={open} onToggle={onToggle} setOpen={setOpen} />
     </>
   );
 };
