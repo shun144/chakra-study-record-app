@@ -1,24 +1,33 @@
-import {
-  Field,
-  type FieldErrorTextProps,
-  type FieldLabelProps,
-} from "@chakra-ui/react";
-import { forwardRef, type PropsWithChildren } from "react";
+import { Field as ChakraField } from "@chakra-ui/react";
+import * as React from "react";
 
-export const FieldLabel = forwardRef<
-  HTMLLabelElement,
-  PropsWithChildren<FieldLabelProps>
->(({ children, ...props }, ref) => (
-  <Field.Label {...props} ref={ref}>
-    {children}
-  </Field.Label>
-));
+export interface FieldProps extends Omit<ChakraField.RootProps, "label"> {
+  label?: React.ReactNode;
+  helperText?: React.ReactNode;
+  errorText?: React.ReactNode;
+  optionalText?: React.ReactNode;
+}
 
-export const FieldErrorText = forwardRef<
-  HTMLDivElement,
-  PropsWithChildren<FieldErrorTextProps>
->(({ children, ...props }, ref) => (
-  <Field.ErrorText {...props} ref={ref}>
-    {children}
-  </Field.ErrorText>
-));
+export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
+  function Field(props, ref) {
+    const { label, children, helperText, errorText, optionalText, ...rest } =
+      props;
+    return (
+      <ChakraField.Root ref={ref} {...rest}>
+        {label && (
+          <ChakraField.Label>
+            {label}
+            <ChakraField.RequiredIndicator fallback={optionalText} />
+          </ChakraField.Label>
+        )}
+        {children}
+        {helperText && (
+          <ChakraField.HelperText>{helperText}</ChakraField.HelperText>
+        )}
+        {errorText && (
+          <ChakraField.ErrorText>{errorText}</ChakraField.ErrorText>
+        )}
+      </ChakraField.Root>
+    );
+  }
+);
