@@ -1,6 +1,54 @@
 import { Field as ChakraField } from "@chakra-ui/react";
 import * as React from "react";
 
+interface NewFieldLabelProps extends ChakraField.LabelProps {
+  children: React.ReactNode;
+  ref?: React.ForwardedRef<HTMLLabelElement>;
+}
+const FieldLabel = React.forwardRef<HTMLLabelElement, NewFieldLabelProps>(
+  (props, ref) => {
+    const overriddenProp: NewFieldLabelProps = {
+      ref,
+      ...props,
+    };
+
+    return <ChakraField.Label {...overriddenProp} />;
+  }
+);
+
+interface NewFieldHelperTextProps extends ChakraField.HelperTextProps {
+  children: React.ReactNode;
+  ref?: React.ForwardedRef<HTMLDivElement>;
+}
+
+const FieldHelperText = React.forwardRef<
+  HTMLDivElement,
+  NewFieldHelperTextProps
+>((props, ref) => {
+  const overriddenProp: NewFieldHelperTextProps = {
+    ref,
+    ...props,
+  };
+
+  return <ChakraField.HelperText {...overriddenProp} />;
+});
+
+interface NewFieldErrorTextProps extends ChakraField.ErrorTextProps {
+  children: React.ReactNode;
+  ref?: React.ForwardedRef<HTMLDivElement>;
+}
+
+const FieldErrorText = React.forwardRef<HTMLDivElement, NewFieldErrorTextProps>(
+  (props, ref) => {
+    const overriddenProp: NewFieldErrorTextProps = {
+      ref,
+      ...props,
+    };
+
+    return <ChakraField.ErrorText {...overriddenProp} />;
+  }
+);
+
 export interface FieldProps extends Omit<ChakraField.RootProps, "label"> {
   label?: React.ReactNode;
   helperText?: React.ReactNode;
@@ -15,18 +63,14 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
     return (
       <ChakraField.Root ref={ref} {...rest}>
         {label && (
-          <ChakraField.Label>
+          <FieldLabel>
             {label}
             <ChakraField.RequiredIndicator fallback={optionalText} />
-          </ChakraField.Label>
+          </FieldLabel>
         )}
         {children}
-        {helperText && (
-          <ChakraField.HelperText>{helperText}</ChakraField.HelperText>
-        )}
-        {errorText && (
-          <ChakraField.ErrorText>{errorText}</ChakraField.ErrorText>
-        )}
+        {helperText && <FieldHelperText>{helperText}</FieldHelperText>}
+        {errorText && <FieldErrorText>{errorText}</FieldErrorText>}
       </ChakraField.Root>
     );
   }

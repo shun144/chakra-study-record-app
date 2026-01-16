@@ -6,10 +6,18 @@ import {
   fetchAllRecords,
   insertRecord,
 } from "@/utils/supabase/supabaseFunction";
-import { HStack, IconButton, useDisclosure } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Heading,
+  IconButton,
+  Stack,
+  Table,
+  useDisclosure,
+} from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { RxCross2 } from "react-icons/rx";
+import { FaRegTrashAlt } from "react-icons/fa";
 
 interface FormValues {
   studyContent: string;
@@ -70,63 +78,88 @@ const StudyRecord = () => {
 
   if (isLoading) return <div>ローディング中</div>;
 
-  const totalTime = records.reduce((accu, curr) => {
-    return accu + curr.time;
-  }, 0);
-
   return (
-    <>
-      <h1 data-testid="title" style={{ color: "green" }}>
-        学習記録一覧
-      </h1>
-      <div
-        style={{
-          width: "450px",
-          margin: "0 auto",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "start",
-        }}
+    <Flex
+      h="100vh"
+      justify={"center"}
+      align={"start"}
+      p="20"
+      bg="gray.100"
+      overflowY={"scroll"}
+    >
+      <Box
+        w="800px"
+        h="600px"
+        bg="white"
+        rounded={"sm"}
+        shadow={"md"}
+        p="12"
+        overflowY={"scroll"}
       >
-        <div style={{ margin: "15px 0", width: "200px" }}>
-          <ul
-            style={{
-              listStyle: "none",
-              padding: "0",
-            }}
+        <Box position="relative" mb="4">
+          <Heading size="2xl" color="teal" textAlign={"center"}>
+            学習記録一覧
+          </Heading>
+          <PrimaryButton
+            position={"absolute"}
+            top="0"
+            right="0"
+            onClick={() => setOpen(true)}
           >
-            {records.map((record) => (
-              <li key={record.id}>
-                <HStack>
-                  <p>{`${record.title}:${record.time}時間`}</p>
-                  <IconButton
-                    onClick={() => onDelete(record.id)}
-                    size={"sm"}
-                    aria-label="delete record"
-                  >
-                    <RxCross2 />
-                  </IconButton>
-                </HStack>
-              </li>
-            ))}
-          </ul>
-        </div>
+            新規登録
+          </PrimaryButton>
+        </Box>
 
-        <div style={{ textAlign: "center", width: "100%" }}>
-          <PrimaryButton onClick={() => setOpen(true)}>登録</PrimaryButton>
-          <p>{`合計時間：${totalTime} / 1000(h)`}</p>
-        </div>
-      </div>
+        <Stack>
+          <Table.Root
+            size="sm"
+            variant={"outline"}
+            overflowX="unset"
+            overflowY="unset"
+          >
+            <Table.Header>
+              <Table.Row>
+                <Table.ColumnHeader textAlign={"center"}>
+                  学習内容
+                </Table.ColumnHeader>
+                <Table.ColumnHeader textAlign={"center"}>
+                  学習時間
+                </Table.ColumnHeader>
+                <Table.ColumnHeader textAlign={"center"}>
+                  アクション
+                </Table.ColumnHeader>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {records.map((item) => (
+                <Table.Row key={item.id}>
+                  <Table.Cell>{item.title}</Table.Cell>
+                  <Table.Cell>{item.time}</Table.Cell>
+                  <Table.Cell textAlign={"center"}>
+                    <IconButton
+                      variant={"ghost"}
+                      size="sm"
+                      onClick={() => onDelete(item.id)}
+                    >
+                      <FaRegTrashAlt />
+                    </IconButton>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table.Root>
+        </Stack>
 
-      <InputModal
-        open={open}
-        onToggle={onToggle}
-        onSubmit={onSubmit}
-        errors={errors}
-        register={register}
-        isValid={isValid}
-      />
-    </>
+        <InputModal
+          open={open}
+          onToggle={onToggle}
+          onSubmit={onSubmit}
+          errors={errors}
+          register={register}
+          isValid={isValid}
+        />
+      </Box>
+    </Flex>
   );
 };
 
