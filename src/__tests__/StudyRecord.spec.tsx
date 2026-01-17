@@ -1,31 +1,40 @@
+import { type Record } from "@/domain/record";
 import StudyRecord from "@/pages/StudyRecord";
+import * as supabaseFunction from "@/utils/supabase/supabaseFunction";
 import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
-import { render, screen, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import { userEvent as testingLibraryUserEvent } from "@testing-library/user-event";
 
-import * as supabaseFunction from "@/utils/supabase/supabaseFunction";
+function delayResponse<T>(res: T, waitTime: number) {
+  return new Promise<T>((resolve) => setTimeout(() => resolve(res), waitTime));
+}
 
 jest.mock("@/utils/supabase/supabaseFunction", () => ({
-  fetchAllRecords: jest.fn().mockResolvedValue([
-    {
-      id: "1",
-      title: "テスト課題",
-      time: 10,
-      created_at: Date.now().toLocaleString(),
-    },
-    {
-      id: "2",
-      title: "テスト課題2",
-      time: 8,
-      created_at: Date.now().toLocaleString(),
-    },
-    {
-      id: "3",
-      title: "テスト課題3",
-      time: 4,
-      created_at: Date.now().toLocaleString(),
-    },
-  ]),
+  fetchAllRecords: jest.fn().mockImplementation(() =>
+    delayResponse<Record[]>(
+      [
+        {
+          id: "1",
+          title: "テスト課題",
+          time: 10,
+          created_at: Date.now().toLocaleString(),
+        },
+        {
+          id: "2",
+          title: "テスト課題2",
+          time: 8,
+          created_at: Date.now().toLocaleString(),
+        },
+        {
+          id: "3",
+          title: "テスト課題3",
+          time: 4,
+          created_at: Date.now().toLocaleString(),
+        },
+      ],
+      500
+    )
+  ),
   insertRecord: jest.fn().mockResolvedValue({
     id: "add-test-id",
     title: "追加テスト課題",
@@ -36,22 +45,43 @@ jest.mock("@/utils/supabase/supabaseFunction", () => ({
 }));
 
 describe("StudyRecord.tsx", () => {
+  const userEvent = testingLibraryUserEvent.setup();
+
+  beforeEach(async () => {
+    // // タイマー関数をモックする
+    // jest.useFakeTimers();
+
+    await waitFor(() => {
+      act(() =>
+        render(
+          <ChakraProvider value={defaultSystem}>
+            <StudyRecord />
+          </ChakraProvider>
+        )
+      );
+    });
+  });
+
+  // afterEach(() => {
+  //   jest.runOnlyPendingTimers();
+
+  //   // モックから通常のタイマー関数に戻す
+  //   jest.useRealTimers();
+  // });
+
   it("ローディング表示チェック", async () => {
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <StudyRecord />
-      </ChakraProvider>
-    );
-    const loadingElem = await screen.findByText("ローディング中");
-    expect(loadingElem).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("ローディング中")).toBeInTheDocument();
+    });
+
+    // jest.advanceTimersByTime(500);
+
+    await waitFor(() => {
+      expect(screen.queryByText("ローディング中")).toBeNull();
+    });
   });
 
   it("テーブル表示チェック", async () => {
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <StudyRecord />
-      </ChakraProvider>
-    );
     const tableElem = await screen.findByRole("table");
     const trElems = tableElem.querySelectorAll("tbody tr");
     expect(tableElem).toBeInTheDocument();
@@ -59,21 +89,14 @@ describe("StudyRecord.tsx", () => {
   });
 
   it("新規登録ボタン表示チェック", async () => {
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <StudyRecord />
-      </ChakraProvider>
-    );
-    const buttonElem = await screen.findByRole("button", { name: "新規登録" });
-    expect(buttonElem).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "新規登録" })
+      ).toBeInTheDocument();
+    });
   });
 
   it("タイトル表示チェック", async () => {
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <StudyRecord />
-      </ChakraProvider>
-    );
     const hElem = await screen.findByRole("heading", {
       name: "学習記録一覧",
     });
@@ -81,34 +104,21 @@ describe("StudyRecord.tsx", () => {
   });
 
   it("モーダルタイトル表示チェック", async () => {
-    const userEvent = testingLibraryUserEvent.setup();
+    await waitFor(() => {
+      userEvent.click(screen.getByRole("button", { name: "新規登録" }));
+    });
 
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <StudyRecord />
-      </ChakraProvider>
-    );
-    const buttonElem = await screen.findByRole("button", { name: "新規登録" });
-    await userEvent.click(buttonElem);
-
-    const h2Elem = await screen.findByRole("heading", {
+    const h2 = await screen.findByRole("heading", {
       level: 2,
       name: "学習記録登録",
     });
 
-    expect(h2Elem).toBeInTheDocument();
+    expect(h2).toBeInTheDocument();
   });
 
   it("学習内容未入力_登録エラーチェック", async () => {
     const spyOnInsertRecord = jest.spyOn(supabaseFunction, "insertRecord");
 
-    const userEvent = testingLibraryUserEvent.setup();
-
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <StudyRecord />
-      </ChakraProvider>
-    );
     const openModalBtnElem = await screen.findByRole("button", {
       name: "新規登録",
     });
@@ -132,13 +142,6 @@ describe("StudyRecord.tsx", () => {
   it("学習時間未入力_登録エラーチェック", async () => {
     const spyOnInsertRecord = jest.spyOn(supabaseFunction, "insertRecord");
 
-    const userEvent = testingLibraryUserEvent.setup();
-
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <StudyRecord />
-      </ChakraProvider>
-    );
     const openModalBtnElem = await screen.findByRole("button", {
       name: "新規登録",
     });
@@ -167,20 +170,14 @@ describe("StudyRecord.tsx", () => {
   });
 
   it("学習記録_削除正常チェック", async () => {
-    const userEvent = testingLibraryUserEvent.setup();
     const delFuncSpy = jest.spyOn(supabaseFunction, "DeleteRecord");
-
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <StudyRecord />
-      </ChakraProvider>
-    );
 
     const deleteBtnElems = await screen.findAllByRole("button", {
       name: "記録削除",
     });
 
     await userEvent.click(deleteBtnElems[0]);
+    screen.debug();
     const trElems = within(screen.getByTestId("tbody")).getAllByRole("row");
     expect(trElems.length).toBe(2);
     expect(delFuncSpy).toHaveBeenCalledTimes(1);
