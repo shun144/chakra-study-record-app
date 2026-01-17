@@ -12,7 +12,6 @@ import {
   Dialog,
   Flex,
   Input,
-  Portal,
   Stack,
   Text,
   type UseDisclosureReturn,
@@ -44,70 +43,68 @@ const InputModal: FC<Props> = ({
 }) => {
   return (
     <DialogRoot size={"sm"} open={open} onOpenChange={onToggle}>
-      <Portal>
-        <Dialog.Backdrop />
-        <DialogContent>
-          <Dialog.Header>
-            <DialogTitle>学習記録登録</DialogTitle>
-          </Dialog.Header>
-          <Dialog.Body>
-            <Stack>
-              <form id="register" onSubmit={onSubmit}>
-                <Stack gap="4" align="flex-start" maxW="md">
-                  <Field
-                    label={"学習記録"}
-                    errorText={errors.studyContent?.message}
-                    invalid={!!errors.studyContent}
-                  >
+      <DialogContent>
+        <Dialog.Header>
+          <DialogTitle>学習記録登録</DialogTitle>
+        </Dialog.Header>
+        <Dialog.Body>
+          <Stack>
+            <form id="register" onSubmit={onSubmit}>
+              <Stack gap="4" align="flex-start" maxW="md">
+                <Field
+                  label={"学習内容"}
+                  errorText={errors.studyContent?.message}
+                  invalid={!!errors.studyContent}
+                >
+                  <Input
+                    {...register("studyContent", {
+                      required: "内容の入力は必須です",
+                    })}
+                  />
+                </Field>
+
+                <Field
+                  label={"学習時間"}
+                  errorText={errors.studyTime?.message}
+                  invalid={!!errors.studyTime}
+                >
+                  <Flex align={"center"} w="100%" gap={2}>
                     <Input
-                      {...register("studyContent", {
-                        required: "内容の入力は必須です",
+                      type="number"
+                      min={0}
+                      w={"90%"}
+                      {...register("studyTime", {
+                        pattern: {
+                          value: /^(0|[1-9]\d*)(\.\d+)?$/,
+                          message: "整数で入力してください。",
+                        },
+                        required: "時間の入力は必須です",
+                        min: {
+                          value: 0,
+                          message: "時間は0以上を指定してください",
+                        },
                       })}
                     />
-                  </Field>
+                    <Text>時間</Text>
+                  </Flex>
+                </Field>
+              </Stack>
+            </form>
+          </Stack>
+        </Dialog.Body>
+        <Dialog.Footer>
+          <PrimaryButton type="submit" form="register">
+            登録
+          </PrimaryButton>
+          <Dialog.ActionTrigger asChild>
+            <Button>キャンセル</Button>
+          </Dialog.ActionTrigger>
+        </Dialog.Footer>
 
-                  <Field
-                    label={"学習時間"}
-                    errorText={errors.studyTime?.message}
-                    invalid={!!errors.studyTime}
-                  >
-                    <Flex align={"center"} w="100%" gap={2}>
-                      <Input
-                        type="number"
-                        min={0}
-                        w={"90%"}
-                        {...register("studyTime", {
-                          pattern: {
-                            value: /^(0|[1-9]\d*)(\.\d+)?$/,
-                            message: "整数で入力してください。",
-                          },
-                          required: "時間の入力は必須です",
-                          min: {
-                            value: 0,
-                            message: "時間は0以上である必要があります",
-                          },
-                        })}
-                      />
-                      <Text>時間</Text>
-                    </Flex>
-                  </Field>
-                </Stack>
-              </form>
-            </Stack>
-          </Dialog.Body>
-          <Dialog.Footer>
-            <PrimaryButton type="submit" form="register" isDisabled={!isValid}>
-              登録
-            </PrimaryButton>
-            <Dialog.ActionTrigger asChild>
-              <Button>キャンセル</Button>
-            </Dialog.ActionTrigger>
-          </Dialog.Footer>
-          <DialogCloseTrigger>
-            <CloseButton size="sm" />
-          </DialogCloseTrigger>
-        </DialogContent>
-      </Portal>
+        <DialogCloseTrigger asChild>
+          <CloseButton size="sm" />
+        </DialogCloseTrigger>
+      </DialogContent>
     </DialogRoot>
   );
 };

@@ -4,7 +4,6 @@ import {
   type DialogCloseTriggerProps,
 } from "@chakra-ui/react";
 import { forwardRef } from "react";
-import { CloseButton } from "./close-button";
 
 interface NewDialogPositionerProps extends ChakraDialog.PositionerProps {
   children: React.ReactNode;
@@ -53,31 +52,18 @@ export const DialogContent = forwardRef<HTMLDivElement, NewDialogContentProps>(
 
 interface NewDialogCloseTriggerProps extends DialogCloseTriggerProps {
   children?: React.ReactNode;
+  ref?: React.ForwardedRef<HTMLButtonElement>;
   asChild?: boolean;
-  position?: "absolute";
-  top?: "2";
-  insetEnd?: "2";
 }
 
 export const DialogCloseTrigger = forwardRef<
   HTMLButtonElement,
   NewDialogCloseTriggerProps
 >((props, ref) => {
-  const { children, ...rest } = props;
-
   const overriddenProps: NewDialogCloseTriggerProps = {
-    ...rest,
-    asChild: true,
-    position: "absolute",
-    top: "2",
-    insetEnd: "2",
-    children: (
-      <CloseButton size="sm" ref={ref}>
-        {children}
-      </CloseButton>
-    ),
+    ref,
+    ...props,
   };
-
   return <ChakraDialog.CloseTrigger {...overriddenProps} />;
 });
 

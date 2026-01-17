@@ -130,13 +130,14 @@ const StudyRecord = () => {
                 </Table.ColumnHeader>
               </Table.Row>
             </Table.Header>
-            <Table.Body>
+            <Table.Body data-testid="tbody">
               {records.map((item) => (
                 <Table.Row key={item.id}>
                   <Table.Cell>{item.title}</Table.Cell>
                   <Table.Cell>{item.time}</Table.Cell>
                   <Table.Cell textAlign={"center"}>
                     <IconButton
+                      aria-label="記録削除"
                       variant={"ghost"}
                       size="sm"
                       onClick={() => onDelete(item.id)}

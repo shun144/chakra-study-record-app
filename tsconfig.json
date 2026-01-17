@@ -6,6 +6,8 @@
   ],
 
   "compilerOptions": {
+    // "module": "ESNext",
+    // "moduleResolution": "bundler",
     "esModuleInterop": true,
     "jsx": "react-jsx",
     "types": ["node", "jest", "@testing-library/jest-dom"],
