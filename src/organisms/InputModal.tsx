@@ -16,6 +16,7 @@ import {
   Text,
   type UseDisclosureReturn,
 } from "@chakra-ui/react";
+import type { OpenChangeDetails } from "node_modules/@chakra-ui/react/dist/types/components/dialog/namespace";
 import { memo, type FC } from "react";
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
 
@@ -25,27 +26,39 @@ interface FormValues {
 }
 
 type Props = Pick<UseDisclosureReturn, "open" | "onToggle"> & {
+  selectedRecordId?: string;
   onSubmit: (
     e?: React.BaseSyntheticEvent<object, any, any> | undefined
   ) => Promise<void>;
   errors: FieldErrors<FormValues>;
   register: UseFormRegister<FormValues>;
-  isValid: boolean;
+  reset: () => void;
 };
 
 const InputModal: FC<Props> = ({
+  selectedRecordId,
   open,
   onToggle,
   onSubmit,
   errors,
   register,
-  isValid,
+  reset,
 }) => {
+  const onOpenChange = (details: OpenChangeDetails) => {
+    const { open } = details;
+    if (open === false && selectedRecordId) {
+      reset();
+    }
+    onToggle();
+  };
+
   return (
-    <DialogRoot size={"sm"} open={open} onOpenChange={onToggle}>
+    <DialogRoot size={"sm"} open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <Dialog.Header>
-          <DialogTitle>学習記録登録</DialogTitle>
+          <DialogTitle>
+            {selectedRecordId ? "学習記録編集" : "学習記録登録"}
+          </DialogTitle>
         </Dialog.Header>
         <Dialog.Body>
           <Stack>
@@ -81,7 +94,7 @@ const InputModal: FC<Props> = ({
                         required: "時間の入力は必須です",
                         min: {
                           value: 0,
-                          message: "時間は0以上を指定してください",
+                          message: "時間は0以上を指定してくださいj",
                         },
                       })}
                     />
@@ -94,7 +107,7 @@ const InputModal: FC<Props> = ({
         </Dialog.Body>
         <Dialog.Footer>
           <PrimaryButton type="submit" form="register">
-            登録
+            {selectedRecordId ? "保存" : "登録"}
           </PrimaryButton>
           <Dialog.ActionTrigger asChild>
             <Button>キャンセル</Button>

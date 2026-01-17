@@ -10,6 +10,7 @@ import {
   Box,
   Flex,
   Heading,
+  HStack,
   IconButton,
   Stack,
   Table,
@@ -17,7 +18,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { FaRegTrashAlt } from "react-icons/fa";
+import { FaRegEdit, FaRegTrashAlt } from "react-icons/fa";
 
 interface FormValues {
   studyContent: string;
@@ -28,6 +29,9 @@ const StudyRecord = () => {
   const [records, setRecords] = useState<Record[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { open, setOpen, onToggle } = useDisclosure();
+  const [selectedRecordId, setSelectedRecordId] = useState<string | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     (async () => {
@@ -43,26 +47,56 @@ const StudyRecord = () => {
     handleSubmit,
     reset,
     formState: { isValid, errors },
+    setValue,
   } = useForm<FormValues>({
     mode: "onSubmit",
   });
 
+  const onAddModalOpen = () => {
+    setSelectedRecordId(undefined);
+    setOpen(true);
+  };
+
   const onSubmit = handleSubmit(async (formData) => {
     if (!isValid) return;
-
     const newRecord = {
+      id: selectedRecordId,
       title: formData.studyContent,
       time: formData.studyTime,
     };
+    const upsertedRecord = await insertRecord(newRecord);
+    if (upsertedRecord === null) return;
 
-    const addedRecord = await insertRecord(newRecord);
+    if (selectedRecordId) {
+      setRecords((prev) =>
+        prev.map((x) => {
+          if (x.id === upsertedRecord.id) {
+            return {
+              ...x,
+              title: formData.studyContent,
+              time: formData.studyTime,
+            };
+          }
+          return x;
+        })
+      );
+    } else {
+      setRecords((prev) => [...prev, upsertedRecord]);
+    }
 
-    if (addedRecord === null) return;
-
-    setRecords((prev) => [...prev, addedRecord]);
+    setSelectedRecordId(undefined);
     reset();
     setOpen(false);
   });
+
+  const onEditModalOpen = (targetId: string) => {
+    const foundData = records.find(({ id }) => id === targetId);
+    if (!foundData) return;
+    setSelectedRecordId(foundData.id);
+    setValue("studyContent", foundData.title);
+    setValue("studyTime", foundData.time);
+    setOpen(true);
+  };
 
   const onDelete = async (targetId: string) => {
     try {
@@ -104,7 +138,7 @@ const StudyRecord = () => {
             position={"absolute"}
             top="0"
             right="0"
-            onClick={() => setOpen(true)}
+            onClick={onAddModalOpen}
           >
             新規登録
           </PrimaryButton>
@@ -133,17 +167,30 @@ const StudyRecord = () => {
             <Table.Body data-testid="tbody">
               {records.map((item) => (
                 <Table.Row key={item.id}>
-                  <Table.Cell>{item.title}</Table.Cell>
-                  <Table.Cell>{item.time}</Table.Cell>
+                  <Table.Cell textAlign={"center"}>{item.title}</Table.Cell>
+                  <Table.Cell
+                    textAlign={"center"}
+                  >{`${item.time} 時間`}</Table.Cell>
                   <Table.Cell textAlign={"center"}>
-                    <IconButton
-                      aria-label="記録削除"
-                      variant={"ghost"}
-                      size="sm"
-                      onClick={() => onDelete(item.id)}
-                    >
-                      <FaRegTrashAlt />
-                    </IconButton>
+                    <HStack gapX={2} justify={"center"}>
+                      <IconButton
+                        aria-label="記録削除"
+                        variant={"ghost"}
+                        size="sm"
+                        color="red.500"
+                        onClick={() => onDelete(item.id)}
+                      >
+                        <FaRegTrashAlt />
+                      </IconButton>
+                      <IconButton
+                        aria-label="記録編集"
+                        variant={"ghost"}
+                        size="sm"
+                        onClick={() => onEditModalOpen(item.id)}
+                      >
+                        <FaRegEdit />
+                      </IconButton>
+                    </HStack>
                   </Table.Cell>
                 </Table.Row>
               ))}
@@ -152,12 +199,13 @@ const StudyRecord = () => {
         </Stack>
 
         <InputModal
+          selectedRecordId={selectedRecordId}
           open={open}
           onToggle={onToggle}
           onSubmit={onSubmit}
           errors={errors}
           register={register}
-          isValid={isValid}
+          reset={reset}
         />
       </Box>
     </Flex>

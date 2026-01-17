@@ -41,7 +41,7 @@ export const DialogContent = forwardRef<HTMLDivElement, NewDialogContentProps>(
     };
     return (
       <Portal disabled={!portalled} container={portalRef}>
-        {backdrop && <ChakraDialog.Backdrop />}
+        {backdrop && <ChakraDialog.Backdrop onClick={() => alert("shun")} />}
         <DialogPositioner>
           <ChakraDialog.Content {...overriddenProps} />
         </DialogPositioner>

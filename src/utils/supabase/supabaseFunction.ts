@@ -24,7 +24,7 @@ export const fetchAllRecords = async (): Promise<Record[]> => {
 };
 
 export const insertRecord = async (
-  newRecord: Pick<Record, "title" | "time">
+  newRecord: Partial<Pick<Record, "id">> & Pick<Record, "title" | "time">
 ): Promise<Record | null> => {
   try {
     const res = await supabase.from("study-record").upsert(newRecord).select();
