@@ -164,7 +164,7 @@ const StudyRecord = () => {
                 </Table.ColumnHeader>
               </Table.Row>
             </Table.Header>
-            <Table.Body data-testid="tbody">
+            <Table.Body data-testid="tbody" role="tbody">
               {records.map((item) => (
                 <Table.Row key={item.id}>
                   <Table.Cell aria-label="学習内容" textAlign={"center"}>

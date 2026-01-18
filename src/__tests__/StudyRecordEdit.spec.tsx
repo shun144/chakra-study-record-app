@@ -19,7 +19,13 @@ jest.mock("@/utils/supabase/supabaseFunction", () => ({
     {
       id: "1",
       title: "初期値課題",
-      time: 0,
+      time: 1,
+      created_at: Date.now().toLocaleString(),
+    },
+    {
+      id: "2",
+      title: "初期値課題2",
+      time: 2,
       created_at: Date.now().toLocaleString(),
     },
   ]),
@@ -36,7 +42,7 @@ describe("編集テスト", () => {
     });
   });
 
-  xit("モーダルタイトルチェック", async () => {
+  xit("編集モーダルタイトルチェック", async () => {
     await waitFor(() => {
       expect(screen.queryByText("ローディング中")).toBeNull();
     });
@@ -51,7 +57,72 @@ describe("編集テスト", () => {
     expect(dialogTitle).toBe(dialogTitle);
   });
 
-  it("記録編集チェック", async () => {
+  test.each([0, 1])("編集モーダル_フィールド値チェック_%i", async (rowIdx) => {
+
+    // 準備
+    const tbody = await screen.findByRole("tbody");
+    const trElems = tbody.querySelectorAll("tr");
+    const targetTrElem = trElems[rowIdx];
+    const targetStudyContent = await within(targetTrElem).findByRole("cell", { name: "学習内容" });
+    const targetStudyTime = await within(targetTrElem).findByRole("cell", { name: "学習時間" });
+    const editBtnElem = within(targetTrElem).getByRole("button", { name: "記録編集" })
+
+    // 実行
+    await user.click(editBtnElem);
+
+    // 確認
+    const dialog = await screen.findByRole("dialog");
+    await waitFor(() => {
+      expect(within(dialog).getByRole("textbox", { name: "学習内容" })).toHaveValue(targetStudyContent.textContent);
+      expect(within(dialog).getByRole("spinbutton", { name: "学習時間" })).toHaveValue(Number(targetStudyTime.textContent.replace(" 時間", "")));
+    })
+
+    // 後片づけ
+    const cancelBtn = await within(dialog).findByRole("button", { name: "キャンセル" })
+    await user.click(cancelBtn);
+    await waitFor(() => {
+      expect(dialog).not.toBeInTheDocument();
+    })
+
+
+
+  })
+
+  // it("編集モーダル_フィールド値チェック", async () => {
+
+  //   // 準備
+  //   const tbody = await screen.findByRole("tbody");
+  //   const trElems = tbody.querySelectorAll("tr");
+  //   const targetTrElem = trElems[0];
+  //   const targetStudyContent = await within(targetTrElem).findByRole("cell", { name: "学習内容" });
+  //   const targetStudyTime = await within(targetTrElem).findByRole("cell", { name: "学習時間" });
+  //   const editBtnElem = within(targetTrElem).getByRole("button", { name: "記録編集" })
+
+
+  //   // 実行
+  //   await user.click(editBtnElem);
+
+
+  //   const dialog = await screen.findByRole("dialog");
+  //   await waitFor(() => {
+  //     expect(within(dialog).getByRole("textbox", { name: "学習内容" })).toHaveValue(targetStudyContent.textContent);
+  //     expect(within(dialog).getByRole("spinbutton", { name: "学習時間" })).toHaveValue(Number(targetStudyTime.textContent.replace(" 時間", "")));
+  //   })
+
+  //   // 後片づけ
+  //   const cancelBtn = await within(dialog).findByRole("button", { name: "キャンセル" })
+  //   await user.click(cancelBtn);
+
+  //   await waitFor(() => {
+  //     expect(dialog).not.toBeInTheDocument();
+  //   })
+
+
+
+  // })
+
+
+  xit("記録編集チェック", async () => {
     await waitFor(() => {
       expect(screen.queryByText("ローディング中")).toBeNull();
     });

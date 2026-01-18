@@ -57,6 +57,7 @@ const InputModal: FC<Props> = ({
       open={open}
       onOpenChange={onOpenChange}
       aria-label="記録登録更新ダイアログ"
+      role="dialog"
     >
       <DialogContent>
         <Dialog.Header>
