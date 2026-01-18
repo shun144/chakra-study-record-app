@@ -18,7 +18,7 @@ const DialogPositioner = forwardRef<HTMLDivElement, NewDialogPositionerProps>(
     };
 
     return <ChakraDialog.Positioner {...overriddenProps} />;
-  }
+  },
 );
 
 interface NewDialogContentProps extends ChakraDialog.ContentProps {
@@ -41,13 +41,13 @@ export const DialogContent = forwardRef<HTMLDivElement, NewDialogContentProps>(
     };
     return (
       <Portal disabled={!portalled} container={portalRef}>
-        {backdrop && <ChakraDialog.Backdrop onClick={() => alert("shun")} />}
+        {backdrop && <ChakraDialog.Backdrop />}
         <DialogPositioner>
           <ChakraDialog.Content {...overriddenProps} />
         </DialogPositioner>
       </Portal>
     );
-  }
+  },
 );
 
 interface NewDialogCloseTriggerProps extends DialogCloseTriggerProps {
@@ -80,7 +80,7 @@ export const DialogTitle = forwardRef<HTMLDivElement, NewDialogTitleProps>(
     };
 
     return <ChakraDialog.Title {...overriddenProps} />;
-  }
+  },
 );
 
 export const DialogRoot = ChakraDialog.Root;

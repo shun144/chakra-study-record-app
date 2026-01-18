@@ -16,7 +16,6 @@ import {
   Text,
   type UseDisclosureReturn,
 } from "@chakra-ui/react";
-import type { OpenChangeDetails } from "node_modules/@chakra-ui/react/dist/types/components/dialog/namespace";
 import { memo, type FC } from "react";
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
 
@@ -28,7 +27,7 @@ interface FormValues {
 type Props = Pick<UseDisclosureReturn, "open" | "onToggle"> & {
   selectedRecordId?: string;
   onSubmit: (
-    e?: React.BaseSyntheticEvent<object, any, any> | undefined
+    e?: React.BaseSyntheticEvent<object, any, any> | undefined,
   ) => Promise<void>;
   errors: FieldErrors<FormValues>;
   register: UseFormRegister<FormValues>;
@@ -44,7 +43,7 @@ const InputModal: FC<Props> = ({
   register,
   reset,
 }) => {
-  const onOpenChange = (details: OpenChangeDetails) => {
+  const onOpenChange = (details: { open: boolean }) => {
     const { open } = details;
     if (open === false && selectedRecordId) {
       reset();
@@ -53,7 +52,12 @@ const InputModal: FC<Props> = ({
   };
 
   return (
-    <DialogRoot size={"sm"} open={open} onOpenChange={onOpenChange}>
+    <DialogRoot
+      size={"sm"}
+      open={open}
+      onOpenChange={onOpenChange}
+      aria-label="記録登録更新ダイアログ"
+    >
       <DialogContent>
         <Dialog.Header>
           <DialogTitle>
@@ -66,6 +70,7 @@ const InputModal: FC<Props> = ({
               <Stack gap="4" align="flex-start" maxW="md">
                 <Field
                   label={"学習内容"}
+                  aria-label="学習内容"
                   errorText={errors.studyContent?.message}
                   invalid={!!errors.studyContent}
                 >
