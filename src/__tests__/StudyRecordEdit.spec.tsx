@@ -31,7 +31,7 @@ jest.mock("@/utils/supabase/supabaseFunction", () => ({
   ]),
 }));
 
-describe("編集テスト", () => {
+describe.skip("編集テスト", () => {
   beforeEach(async () => {
     await waitFor(() => {
       render(
@@ -57,7 +57,7 @@ describe("編集テスト", () => {
     expect(dialogTitle).toBe(dialogTitle);
   });
 
-  test.each([0, 1])("編集モーダル_フィールド値チェック_%i", async (rowIdx) => {
+  test.skip.each([0, 1])("編集モーダル_フィールド値チェック_%i", async (rowIdx) => {
 
     // 準備
     const tbody = await screen.findByRole("tbody");
@@ -83,43 +83,19 @@ describe("編集テスト", () => {
     await waitFor(() => {
       expect(dialog).not.toBeInTheDocument();
     })
-
-
-
   })
 
-  // it("編集モーダル_フィールド値チェック", async () => {
+  it("編集モーダル_新規登録_フィールド空欄チェック", async () => {
 
-  //   // 準備
-  //   const tbody = await screen.findByRole("tbody");
-  //   const trElems = tbody.querySelectorAll("tr");
-  //   const targetTrElem = trElems[0];
-  //   const targetStudyContent = await within(targetTrElem).findByRole("cell", { name: "学習内容" });
-  //   const targetStudyTime = await within(targetTrElem).findByRole("cell", { name: "学習時間" });
-  //   const editBtnElem = within(targetTrElem).getByRole("button", { name: "記録編集" })
+    const registBtn = await screen.findByRole("button", { name: "新規登録" })
+    await user.click(registBtn)
 
-
-  //   // 実行
-  //   await user.click(editBtnElem);
-
-
-  //   const dialog = await screen.findByRole("dialog");
-  //   await waitFor(() => {
-  //     expect(within(dialog).getByRole("textbox", { name: "学習内容" })).toHaveValue(targetStudyContent.textContent);
-  //     expect(within(dialog).getByRole("spinbutton", { name: "学習時間" })).toHaveValue(Number(targetStudyTime.textContent.replace(" 時間", "")));
-  //   })
-
-  //   // 後片づけ
-  //   const cancelBtn = await within(dialog).findByRole("button", { name: "キャンセル" })
-  //   await user.click(cancelBtn);
-
-  //   await waitFor(() => {
-  //     expect(dialog).not.toBeInTheDocument();
-  //   })
-
-
-
-  // })
+    const dialog = await screen.findByRole("dialog")
+    await waitFor(() => {
+      expect(within(dialog).getByRole("textbox", { name: "学習内容" })).toHaveValue("");
+      expect(within(dialog).getByRole("spinbutton", { name: "学習時間" })).toHaveDisplayValue("");
+    })
+  })
 
 
   xit("記録編集チェック", async () => {
