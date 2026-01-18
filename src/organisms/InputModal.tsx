@@ -83,6 +83,7 @@ const InputModal: FC<Props> = ({
 
                 <Field
                   label={"学習時間"}
+                  aria-label="学習時間"
                   errorText={errors.studyTime?.message}
                   invalid={!!errors.studyTime}
                 >

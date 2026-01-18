@@ -6,12 +6,20 @@ import { userEvent } from "@testing-library/user-event";
 const user = userEvent.setup();
 
 jest.mock("@/utils/supabase/supabaseFunction", () => ({
-  insertRecord: jest.fn(),
+  insertRecord: jest
+    .fn()
+    .mockImplementation(
+      (arg: { id: string | undefined; title: string; time: number }) => ({
+        id: arg.id,
+        title: arg.title,
+        time: arg.time,
+      }),
+    ),
   fetchAllRecords: jest.fn().mockResolvedValue([
     {
       id: "1",
-      title: "テスト課題",
-      time: 10,
+      title: "初期値課題",
+      time: 0,
       created_at: Date.now().toLocaleString(),
     },
   ]),
@@ -50,9 +58,11 @@ describe("編集テスト", () => {
 
     const tbodyElme = await screen.findByTestId("tbody");
     const rowElems = within(tbodyElme).getAllByRole("row");
-    const firstRowElem = rowElems[0];
+    const targetRowElem = rowElems[0];
 
-    const btnElem = firstRowElem.querySelector('button[aria-label="記録編集"]');
+    const btnElem = targetRowElem.querySelector(
+      'button[aria-label="記録編集"]',
+    );
     await user.click(btnElem!);
 
     // 学習記録編集ダイアログが表示されるまで待機
@@ -64,8 +74,30 @@ describe("編集テスト", () => {
       name: "学習内容",
     });
 
-    await user.type(studyContentField, "編集済み");
+    const studyTimeField = await screen.findByRole("spinbutton", {
+      name: "学習時間",
+    });
 
-    screen.debug(studyContentField);
+    await user.clear(studyContentField);
+    await user.type(studyContentField, "★★★");
+
+    await user.clear(studyTimeField);
+    await user.type(studyTimeField, "99");
+
+    const saveBtn = await screen.findByRole("button", {
+      name: "保存",
+    });
+
+    await user.click(saveBtn);
+
+    const targetStudyContent = await within(targetRowElem).findByRole("cell", {
+      name: "学習内容",
+    });
+    const targetStudyTime = await within(targetRowElem).findByRole("cell", {
+      name: "学習時間",
+    });
+
+    expect(targetStudyContent.textContent).toBe("★★★");
+    expect(targetStudyTime.textContent).toBe("99 時間");
   });
 });

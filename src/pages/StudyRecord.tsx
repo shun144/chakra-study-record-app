@@ -30,7 +30,7 @@ const StudyRecord = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { open, setOpen, onToggle } = useDisclosure();
   const [selectedRecordId, setSelectedRecordId] = useState<string | undefined>(
-    undefined
+    undefined,
   );
 
   useEffect(() => {
@@ -73,12 +73,12 @@ const StudyRecord = () => {
           if (x.id === upsertedRecord.id) {
             return {
               ...x,
-              title: formData.studyContent,
-              time: formData.studyTime,
+              title: upsertedRecord.title,
+              time: upsertedRecord.time,
             };
           }
           return x;
-        })
+        }),
       );
     } else {
       setRecords((prev) => [...prev, upsertedRecord]);
@@ -167,8 +167,11 @@ const StudyRecord = () => {
             <Table.Body data-testid="tbody">
               {records.map((item) => (
                 <Table.Row key={item.id}>
-                  <Table.Cell textAlign={"center"}>{item.title}</Table.Cell>
+                  <Table.Cell aria-label="学習内容" textAlign={"center"}>
+                    {item.title}
+                  </Table.Cell>
                   <Table.Cell
+                    aria-label="学習時間"
                     textAlign={"center"}
                   >{`${item.time} 時間`}</Table.Cell>
                   <Table.Cell textAlign={"center"}>
